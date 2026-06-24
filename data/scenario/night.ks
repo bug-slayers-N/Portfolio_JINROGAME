@@ -14,7 +14,7 @@ var coArr = String(f.co).split(",");
 var playerCO = coArr[parseInt(f.player)-1] === "1";
 var role = parseInt(f.role);
 f.result = 0; // 初期化（前ターンの残り値をクリア）
-if(playerCO && (role === 1 || role === 2)){
+if(playerCO && (role <= 5 || role === 9)){
 f.result = "fake";
 }
 [endscript]
@@ -46,7 +46,7 @@ f.claim2 = claim2.join(",");
 *uranai_back
 
 [call  storage="uranai.ks"  target="*fake_CO2"  ]
-[jump  storage="night.ks"  target="*ai_wolf"  cond="f.role!=1"  ]
+[jump  storage="night.ks"  target="*ai_wolf"  cond="f.role>5"  ]
 [jump  storage="night.ks"  target="*player_wolf"  ]
 *ai_wolf
 

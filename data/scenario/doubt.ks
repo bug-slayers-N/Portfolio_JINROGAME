@@ -59,8 +59,9 @@ f.result=parseInt(String(f.character).split(',')[parseInt(f.ai_actor)-1]);
 
 *ai_jinro
 
-[jump  storage="doubt.ks"  target="*ai_mad"  cond="f.result!=1"  ]
+[jump  storage="doubt.ks"  target="*ai_mad"  cond="f.result<5"  ]
 *ai_jinro_block
+
 [iscript]
 var actorNum=parseInt(f.ai_actor);
 var aliveArr=String(f.alive).split(",");

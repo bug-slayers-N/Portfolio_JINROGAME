@@ -6,7 +6,7 @@
 f.turn=0;
 f.day=1;
 f.gamemode=5;
-f.character="1,2,3,4,5";
+f.character="1,9,10,15,16";
 f.player=1;
 f.role=1;
 f.alive="1,1,1,1,1";
@@ -94,19 +94,15 @@ f.character="1,2,9,10,11,12,15,16,17";
 *liar
 
 [iscript]
-var roles=[parseInt(f.mafutsu),parseInt(f.sisigami),parseInt(f.murasame),parseInt(f.kano),parseInt(f.tendo)];
+var n=parseInt(f.gamemode);
+var roles=String(f.character).split(",").map(function(v){return parseInt(v);});
 var playerNum=parseInt(f.player);
 var aliveArr=String(f.alive).split(",");
 var coArr=String(f.co).split(",");
 var claim=String(f.claim).split(",");
 var claim2=String(f.claim2).split(",");
 var lr=String(f.liar).split(",");
-function gi(a,b){
-var o=(a-1)*4;
-var t=[];
-for(var i=1;i<=5;i++){if(i!==a)t.push(i);}
-return o+t.indexOf(b);
-}
+function gi(a,b){var o=(a-1)*(n-1);var t=[];for(var i=1;i<=n;i++){if(i!==a)t.push(i);}return o+t.indexOf(b);}
 function setLiar(idx,val){
 var cur=parseInt(lr[idx]);
 if(cur>=3)return;
@@ -115,7 +111,7 @@ lr[idx]=String(val);
 // ===== 全員共通①：処刑続行バレ =====
 var executed=parseInt(f.result);
 if(executed>0){
-for(var i=1;i<=5;i++){
+for(var i=1;i<=n;i++){
 if(coArr[i-1]==="0")continue;
 var c1t=parseInt(claim[(i-1)*2]);
 var c1r=parseInt(claim[(i-1)*2+1]);
@@ -125,7 +121,7 @@ var busted=false;
 if(c1t===executed&&c1r===1)busted=true;
 if(c2t===executed&&c2r===1)busted=true;
 if(busted){
-for(var obs=1;obs<=5;obs++){
+for(var obs=1;obs<=n;obs++){
 if(obs===i)continue;
 if(aliveArr[obs-1]==="0")continue;
 setLiar(gi(obs,i),1);
@@ -135,14 +131,14 @@ setLiar(gi(obs,i),1);
 }
 // ===== 全員共通②：CO人数による正直確定 =====
 var coCount=0;
-for(var i=1;i<=5;i++){
+for(var i=1;i<=n;i++){
 if(coArr[i-1]==="1")coCount++;
 }
 if(coCount>=3){
-for(var i=1;i<=5;i++){
+for(var i=1;i<=n;i++){
 if(aliveArr[i-1]==="0")continue;
 if(coArr[i-1]==="1")continue;
-for(var obs=1;obs<=5;obs++){
+for(var obs=1;obs<=n;obs++){
 if(obs===i)continue;
 if(aliveArr[obs-1]==="0")continue;
 setLiar(gi(obs,i),5);
@@ -150,9 +146,9 @@ setLiar(gi(obs,i),5);
 }
 }
 // ===== 全員共通③：liar=5のキャラを人狼申告したCO→liar=1 =====
-for(var obs=1;obs<=5;obs++){
+for(var obs=1;obs<=n;obs++){
 if(aliveArr[obs-1]==="0")continue;
-for(var i=1;i<=5;i++){
+for(var i=1;i<=n;i++){
 if(i===obs)continue;
 if(coArr[i-1]==="0")continue;
 var c1t=parseInt(claim[(i-1)*2]);
@@ -164,10 +160,10 @@ if(c2r===1&&c2t>0&&parseInt(lr[gi(obs,c2t)])===5)setLiar(gi(obs,i),1);
 }
 }
 // ===== 全員共通④：死亡COチェーン（A黒B・B黒C→C人狼確定） =====
-for(var a=1;a<=5;a++){
+for(var a=1;a<=n;a++){
 if(coArr[a-1]==="0")continue;
 if(aliveArr[a-1]==="1")continue;
-for(var b=1;b<=5;b++){
+for(var b=1;b<=n;b++){
 if(b===a)continue;
 if(coArr[b-1]==="0")continue;
 if(aliveArr[b-1]==="1")continue;
@@ -185,7 +181,7 @@ var c=0;
 if(bc1r===1&&bc1t>0&&aliveArr[bc1t-1]==="1")c=bc1t;
 else if(bc2r===1&&bc2t>0&&aliveArr[bc2t-1]==="1")c=bc2t;
 if(c===0)continue;
-for(var obs=1;obs<=5;obs++){
+for(var obs=1;obs<=n;obs++){
 if(obs===c)continue;
 if(aliveArr[obs-1]==="0")continue;
 lr[gi(obs,c)]="3";
@@ -193,10 +189,10 @@ lr[gi(obs,c)]="3";
 }
 }
 // ===== 狂人視点：自分を人狼と申告したCO→liar=1 =====
-for(var mad=1;mad<=5;mad++){
-if(roles[mad-1]!==2)continue;
+for(var mad=1;mad<=n;mad++){
+if(roles[mad-1]!==9)continue;
 if(aliveArr[mad-1]==="0")continue;
-for(var i=1;i<=5;i++){
+for(var i=1;i<=n;i++){
 if(i===mad)continue;
 if(coArr[i-1]==="0")continue;
 var c1t=parseInt(claim[(i-1)*2]);
@@ -208,10 +204,10 @@ if(c2t===mad&&c2r===1)setLiar(gi(mad,i),1);
 }
 }
 // ===== 占い師視点 =====
-for(var seer=1;seer<=5;seer++){
-if(roles[seer-1]!==3)continue;
+for(var seer=1;seer<=n;seer++){
+if(roles[seer-1]!==10)continue;
 if(aliveArr[seer-1]==="0")continue;
-for(var i=1;i<=5;i++){
+for(var i=1;i<=n;i++){
 if(i===seer)continue;
 if(coArr[i-1]==="0")continue;
 setLiar(gi(seer,i),1);
@@ -225,22 +221,22 @@ if(sr2tgt>0&&sr2res===1)lr[gi(seer,sr2tgt)]="3";
 if(sr1tgt>0&&sr1res===0&&parseInt(lr[gi(seer,sr1tgt)])===1)lr[gi(seer,sr1tgt)]="4";
 if(sr2tgt>0&&sr2res===0&&parseInt(lr[gi(seer,sr2tgt)])===1)lr[gi(seer,sr2tgt)]="4";
 var hasMad=false;
-for(var i=1;i<=5;i++){
+for(var i=1;i<=n;i++){
 if(i===seer)continue;
 if(parseInt(lr[gi(seer,i)])===4){hasMad=true;break;}
 }
 if(hasMad){
-for(var i=1;i<=5;i++){
+for(var i=1;i<=n;i++){
 if(i===seer)continue;
 if(parseInt(lr[gi(seer,i)])===1)lr[gi(seer,i)]="3";
 }
 }
 }
 // ===== 村人視点：自分を人狼と申告したCO→liar=1 =====
-for(var vil=1;vil<=5;vil++){
-if(roles[vil-1]!==4&&roles[vil-1]!==5)continue;
+for(var vil=1;vil<=n;vil++){
+if(roles[vil-1]<15)continue;
 if(aliveArr[vil-1]==="0")continue;
-for(var i=1;i<=5;i++){
+for(var i=1;i<=n;i++){
 if(i===vil)continue;
 if(coArr[i-1]==="0")continue;
 var c1t=parseInt(claim[(i-1)*2]);
@@ -252,15 +248,15 @@ if(c2t===vil&&c2r===1)setLiar(gi(vil,i),1);
 }
 }
 // ===== 人狼視点 =====
-for(var wolf=1;wolf<=5;wolf++){
-if(roles[wolf-1]!==1)continue;
+for(var wolf=1;wolf<=n;wolf++){
+if(roles[wolf-1]>5)continue;
 if(aliveArr[wolf-1]==="0")continue;
-for(var i=1;i<=5;i++){
+for(var i=1;i<=n;i++){
 if(i===wolf)continue;
 if(aliveArr[i-1]==="0")continue;
 if(parseInt(lr[gi(wolf,i)])===1)lr[gi(wolf,i)]="4";
 }
-for(var i=1;i<=5;i++){
+for(var i=1;i<=n;i++){
 if(i===wolf)continue;
 if(coArr[i-1]==="0")continue;
 var c1t=parseInt(claim[(i-1)*2]);
@@ -272,7 +268,7 @@ if(c2t>0&&c2t!==wolf&&c2r===1)lr[gi(wolf,i)]="4";
 if(c1t===wolf&&c1r===0)lr[gi(wolf,i)]="4";
 if(c2t===wolf&&c2r===0)lr[gi(wolf,i)]="4";
 }
-for(var i=1;i<=5;i++){
+for(var i=1;i<=n;i++){
 if(i===wolf)continue;
 if(aliveArr[i-1]==="0")continue;
 setLiar(gi(wolf,i),2);
@@ -290,14 +286,15 @@ f.player_death=parseInt(f.result)===parseInt(f.player)?1:0;
 
 [call  storage="end.ks"  target="*player_death"  cond="f.player_death==1"  ]
 [iscript]
-function gi(a,b){var o=(a-1)*4;var t=[];for(var i=1;i<=5;i++){if(i!==a)t.push(i);}return o+t.indexOf(b);}
+var n=parseInt(f.gamemode);
+function gi(a,b){var o=(a-1)*(n-1);var t=[];for(var i=1;i<=n;i++){if(i!==a)t.push(i);}return o+t.indexOf(b);}
 var dead=parseInt(f.result);
 var aliveArr=String(f.alive).split(",");
 aliveArr[dead-1]="0";
 f.alive=aliveArr.join(",");
 var liarArr=String(f.liar).split(',');
 // 死者を全生存者のliarで「確認済み人間(2)」に更新
-for(var v=1;v<=5;v++){
+for(var v=1;v<=n;v++){
 if(v===dead)continue;
 liarArr[gi(v,dead)]='2';
 }
@@ -307,12 +304,13 @@ f.liar=liarArr.join(',');
 *game_set
 
 [iscript]
-var roles=[parseInt(f.mafutsu),parseInt(f.sisigami),parseInt(f.murasame),parseInt(f.kano),parseInt(f.tendo)];
+var n=parseInt(f.gamemode);
+var roles=String(f.character).split(",").map(function(v){return parseInt(v);});
 var aliveArr=String(f.alive).split(",");
 var aliveWolf=0,aliveHuman=0;
-for(var i=0;i<5;i++){
+for(var i=0;i<n;i++){
 if(aliveArr[i]==="0")continue;
-if(roles[i]===1)aliveWolf++;else aliveHuman++;
+if(roles[i]<=5)aliveWolf++;else aliveHuman++;
 }
 f.win=aliveWolf===0?1:aliveWolf>=aliveHuman?2:0;
 [endscript]
@@ -323,18 +321,19 @@ f.win=aliveWolf===0?1:aliveWolf>=aliveHuman?2:0;
 *alive
 
 [iscript]
-var names=["真経津","獅子神","村雨","叶","天堂"];
+var n=parseInt(f.gamemode);
+var names=["","真経津","獅子神","村雨","叶","天堂","時雨","山吹","牙頭","漆原"];
 var aliveArr=String(f.alive).split(",");
 var aliveNames=[];
-for(var i=0;i<5;i++){
-if(aliveArr[i]==="1")aliveNames.push(names[i]);
+for(var i=0;i<n;i++){
+if(aliveArr[i]==="1")aliveNames.push(names[i+1]);
 }
-f.vote_disp1=aliveNames.join("、");
+f.display01=aliveNames.join("、");
 [endscript]
 
 [tb_start_text mode=1 ]
 #システム
-残りの生存者は[emb exp="f.vote_disp1"]です。[p]
+残りの生存者は[emb exp="f.display01"]です。[p]
 [_tb_end_text]
 
 [return  ]
@@ -361,19 +360,20 @@ f.result='noisy';
 *noisy
 
 [iscript]
-function addCalm(i,val){if(i===1)f.mafutsu_calm=parseFloat(f.mafutsu_calm)+val;else if(i===2)f.sisigami_calm=parseFloat(f.sisigami_calm)+val;else if(i===3)f.murasame_calm=parseFloat(f.murasame_calm)+val;else if(i===4)f.kano_calm=parseFloat(f.kano_calm)+val;else f.tendo_calm=parseFloat(f.tendo_calm)+val;}
-addCalm(f.player,-20);
+function addCalm(i,val){var arr=String(f.calm).split(",");arr[i-1]=String(parseFloat(arr[i-1])+val);f.calm=arr.join(",");}
+addCalm(parseInt(f.player),-20);
 [endscript]
 
 [iscript]
+var n=parseInt(f.gamemode);
 var aliveArr=String(f.alive).split(",");
 var candidates=[];
-for(var i=1;i<=5;i++){
+for(var i=1;i<=n;i++){
 if(i!==parseInt(f.player)&&aliveArr[i-1]==="1")candidates.push(i);
 }
 f.target=candidates[Math.floor(Math.random()*candidates.length)];
-var names=['真経津','獅子神','村雨','叶','天堂'];
-f.name=names[parseInt(f.player)-1];
+var names=["","真経津","獅子神","村雨","叶","天堂","時雨","山吹","牙頭","漆原"];
+f.name=names[parseInt(f.player)];
 [endscript]
 
 [call  storage="mafutsu.ks"  target="*noisy"  cond="f.target==1"  ]
@@ -400,7 +400,7 @@ if(turn>=4&&action===0)f.result='quiet';
 *q_damege
 
 [iscript]
-function addCalm(i,val){if(i===1)f.mafutsu_calm=parseFloat(f.mafutsu_calm)+val;else if(i===2)f.sisigami_calm=parseFloat(f.sisigami_calm)+val;else if(i===3)f.murasame_calm=parseFloat(f.murasame_calm)+val;else if(i===4)f.kano_calm=parseFloat(f.kano_calm)+val;else f.tendo_calm=parseFloat(f.tendo_calm)+val;}
+function addCalm(i,val){var arr=String(f.calm).split(",");arr[i-1]=String(parseFloat(arr[i-1])+val);f.calm=arr.join(",");}
 addCalm(parseInt(f.player),-20);
 [endscript]
 
