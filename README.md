@@ -8,7 +8,7 @@
 
 **[▶ 今すぐ遊ぶ（デモ）](https://bug-slayers-n.github.io/JB_JINRO/)**
 **[▶ プレイ動画を見る（X/Twitter）](https://x.com/fanmadegame_JB/status/2058382599433887843)**
-**[ゲーム本体リポジトリ → JB_JINRO](https://github.com/bug-slayers-N/JB_JINRO)**
+**[一般公開リポジトリ → JB_JINRO](https://github.com/bug-slayers-N/JB_JINRO)**
 
 ---
 
